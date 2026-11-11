@@ -1,6 +1,6 @@
 {
   "name": "dsh-deepseek-chat",
-  "version": "0.2.21",
+  "version": "0.2.26",
   "description": "CHAT / HARNESS mode switcher for DeepSeek Harness",
   "repository": {
     "type": "git",
@@ -24,7 +24,7 @@
   "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": "^22.19.0 || >=24.0.0",
-    "dsh": "0.2.0-rc.2 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0"
+    "dsh": ">=0.2.0-rc.1 <0.2.1-0 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0"
   },
   "main": "./lib/index.js",
   "types": "./lib/types/index.d.ts",
@@ -70,7 +70,10 @@
     "check:sidebar-rows": "node ./scripts/check-sidebar-rows.mjs",
     "check:website-guest": "node ./scripts/check-website-guest.mjs",
     "check:website-bootstrap": "node ./scripts/check-website-bootstrap.mjs",
-    "check:website-header": "node ./scripts/check-website-header.mjs"
+    "check:website-header": "node ./scripts/check-website-header.mjs",
+    "check:website-text-avatar": "node ./scripts/check-website-text-avatar.mjs",
+    "check:shortcuts": "node scripts/check-shortcuts.mjs",
+    "check:shortcut-capture": "node scripts/check-shortcut-capture-browser.mjs"
   },
   "dsh": {
     "bundle": {
@@ -90,9 +93,9 @@
   },
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.4",
-    "@deepseek-ai/dsh-credentials": "0.2.0-rc.2 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0",
-    "@deepseek-ai/dsh-typert-protocol": "0.2.0-rc.2 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0",
-    "@deepseek-ai/dsh-typert-registry": "0.2.0-rc.2 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0",
+    "@deepseek-ai/dsh-credentials": ">=0.2.0-rc.1 <0.2.1-0 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0",
+    "@deepseek-ai/dsh-typert-protocol": ">=0.2.0-rc.1 <0.2.1-0 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0",
+    "@deepseek-ai/dsh-typert-registry": ">=0.2.0-rc.1 <0.2.1-0 || >=0.2.1-rc.1 <0.2.2-0 || >=0.2.2-rc.1 <0.2.3-0",
     "@deepseek-ai/schemastery": "^3.18.4"
   },
   "dependencies": {

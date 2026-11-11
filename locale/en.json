@@ -3,6 +3,11 @@
     "title": "DeepSeek Chat"
   },
   "ui": {
+    "外部登录页面": "External sign-in page",
+    "正在打开登录页面": "Opening sign-in page",
+    "请在登录页面完成登录，完成后会自动返回 DeepSeek。": "Complete sign-in on the provider page. You will return to DeepSeek automatically.",
+    "登录页面加载超时，请点击「重试网页」。": "The sign-in page took too long to load. Click Retry page.",
+    "登录页面加载失败。请检查网络后重试。": "The sign-in page failed to load. Check your connection and retry.",
     "工作模式": "Work mode",
     "CHAT 官网聊天模式": "CHAT website mode",
     "HARNESS 工作区模式": "HARNESS workspace mode",

@@ -38,7 +38,40 @@ check('the first late conversation header can learn desktop metrics without a ne
 controller.dispose()
 check('disposed owners cannot accept late proof', () => assert.equal(project(third, ready), 'waiting'))
 
-const primitives = ['BrandWordmark', 'IconSearchOutlineRegular', 'IconCloseFillRegular', 'IconNewChatOutlineRegular', 'IconPanelLeftOutlineRegular', 'IconRefreshOutlineRegular', 'IconLoadingOutlineRegular', 'IconEllipsisOutlineRegular', 'IconEditOutlineRegular', 'IconPinOutlineRegular', 'IconShareOutlineRegular', 'IconTrashOutlineRegular', 'IconChevronDownOutlineRegular', 'Menu', 'Modal', 'Tooltip', 'Button', 'Input']
+
+const authChanges = [], authTimers = new Map()
+let authTimer = 0, authFailures = 0
+const auth = createWebsiteBootstrap({ desktop: value => authChanges.push(value), timeout: () => authFailures++, schedule: callback => { authTimers.set(++authTimer, callback); return authTimer }, cancel: timer => authTimers.delete(timer) })
+const oldAuth = auth.begin(), currentAuth = auth.begin()
+check('stale documents and non-auth URLs cannot expose an authentication surface', () => {
+  assert.equal(auth.authentication(oldAuth, 'https://accounts.google.com/'), false)
+  for (const url of ['about:blank', 'http://accounts.google.com/', 'https://chat.deepseek.com/', 'https://deepseek.com/', 'https://sub.deepseek.com/', 'https://accounts.google.com:444/', 'https://user@accounts.google.com/', 'not a URL']) assert.equal(auth.authentication(currentAuth, url), false, url)
+  assert.equal(authChanges.at(-1), true)
+  assert.equal(authTimers.size, 1)
+})
+const oldDeadline = [...authTimers.values()][0]
+check('external provider sign-in cancels the adaptation deadline without claiming a DeepSeek session', () => {
+  for (const url of ['https://accounts.google.com/v3/signin/identifier', 'https://appleid.apple.com/auth/authorize', 'https://open.weixin.qq.com/connect/qrconnect', 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize', 'https://sso.example.com/login']) assert.equal(auth.authentication(currentAuth, url), true, url)
+  assert.equal(authChanges.at(-1), false)
+  assert.equal(authTimers.size, 0)
+  oldDeadline()
+  assert.equal(authFailures, 0)
+  assert.equal(auth.recheck(currentAuth), false)
+  auth.domReady(currentAuth); auth.loaded(currentAuth)
+  assert.equal(auth.project(currentAuth, ready, 320), 'waiting')
+})
+const callback = auth.begin()
+check('a callback restores the normal desktop proof and deadline', () => {
+  assert.equal(authChanges.at(-1), true)
+  assert.equal(authTimers.size, 1)
+  auth.domReady(callback); auth.loaded(callback)
+  assert.equal(auth.project(callback, ready, 320), 'resized')
+  assert.equal(auth.project(callback, narrowReady, 320), 'ready')
+})
+auth.dispose()
+check('a disposed owner cannot reveal a late provider document', () => assert.equal(auth.authentication(callback, 'https://appleid.apple.com/'), false))
+
+const primitives = ['BrandWordmark', 'IconSearchOutlineRegular', 'IconCloseFillRegular', 'IconNewChatOutlineRegular', 'IconPanelLeftOutlineRegular', 'IconRefreshOutlineRegular', 'IconLoadingOutlineRegular', 'IconEllipsisOutlineRegular', 'IconEditOutlineRegular', 'IconPinOutlineRegular', 'IconShareOutlineRegular', 'IconTrashOutlineRegular', 'IconChevronDownOutlineRegular', 'Menu', 'Modal', 'Tooltip', 'Button', 'Input', 'Switch']
 const surfaceSource = await readFile(path.join(root, 'src/web-surface.tsx'), 'utf8')
 check('a failed start does not consume the one-shot desktop recovery', () => {
   assert.match(surfaceSource, /desktopChromeTries < DESKTOP_CHROME_LIMIT\n\s*&& bootstrap\.recheck\(requestDocumentRevision\)\) \{\n\s*desktopChromeTries\+\+/)
@@ -52,7 +85,7 @@ check('a new document resets the attempt budget', () => {
 
 const negative = process.argv.includes('--negative-control')
 const regression = { name: 'reintroduce-old-width-dependency-in-memory', setup(plugin) {
-  plugin.onLoad({ filter: /src\/web-surface\.tsx$/ }, async args => {
+  plugin.onLoad({ filter: /src[\\/]web-surface\.tsx$/ }, async args => {
     const text = await readFile(args.path, 'utf8')
     const original = 'recoveryRevision, guestWanted])'
     assert.ok(text.includes(original))
